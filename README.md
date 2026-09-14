@@ -4,21 +4,25 @@ Reduce cuánto gastan en tokens Claude Code y Codex, sin instalar nada complicad
 
 ## Instalación (un solo comando)
 
-Descarga o clona este repositorio y, desde una terminal PowerShell en la carpeta del repo, ejecuta:
+Descarga este repositorio (botón verde "Code" → "Download ZIP" en GitHub, o `git clone`) y descomprímelo. Muchas instalaciones de Windows bloquean por defecto los scripts `.ps1` bajados de internet ("no se puede cargar porque la ejecución de scripts está deshabilitada"); para evitarlo, desde una terminal PowerShell, dentro de la carpeta del repo, ejecuta:
 
 ```powershell
-.\scripts\install.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
-Esto instala el **nivel base**: funciona en todos tus proyectos, no toca tu código, no sube nada a ningún sitio.
+Ese `-ExecutionPolicy Bypass` solo aplica a este comando, no cambia nada permanente en tu PC. Esto instala el **nivel base**: funciona en todos tus proyectos, no toca tu código, no sube nada a ningún sitio.
 
 Para desinstalarlo:
 
 ```powershell
-.\scripts\uninstall.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1
 ```
 
 Ninguno de los dos scripts borra instrucciones tuyas que ya tuvieras en `CLAUDE.md` o `AGENTS.md`: solo añaden o quitan un bloque marcado, propio de Combo Ahorro.
+
+## Actualizar una instalación anterior
+
+Vuelve a descargar el repositorio (o `git pull` si lo clonaste) y ejecuta otra vez el mismo comando de instalación de arriba. Es seguro repetirlo cuantas veces quieras: sustituye la sección vieja por la nueva sin duplicarla, y si alguien instaló una versión muy antigua (la del prompt de texto, sin script) el instalador también la detecta y la reemplaza.
 
 ## Qué instala el nivel base
 
