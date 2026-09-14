@@ -1,33 +1,61 @@
 # Combo Ahorro
 
-Instalación guiada y portable para reducir salida, contexto y uso innecesario de tokens en Codex y Claude Code.
+Reduce cuánto gastan en tokens Claude Code y Codex, sin instalar nada complicado. Pensado para alguien que no programa pero usa estos agentes a diario sobre proyectos reales (Lovable + Supabase + GitHub).
 
-## Qué incluye
+## Instalación (un solo comando)
 
-`ahorro` es la skill general. Orquesta componentes oficiales, comprueba cuáles están disponibles y no afirma que una integración exista sin validarla.
+Descarga o clona este repositorio y, desde una terminal PowerShell en la carpeta del repo, ejecuta:
 
-| Componente | Utilidad | Repositorio oficial |
+```powershell
+.\scripts\install.ps1
+```
+
+Esto instala el **nivel base**: funciona en todos tus proyectos, no toca tu código, no sube nada a ningún sitio.
+
+Para desinstalarlo:
+
+```powershell
+.\scripts\uninstall.ps1
+```
+
+Ninguno de los dos scripts borra instrucciones tuyas que ya tuvieras en `CLAUDE.md` o `AGENTS.md`: solo añaden o quitan un bloque marcado, propio de Combo Ahorro.
+
+## Qué instala el nivel base
+
+| Componente | Qué hace | Coste / riesgo |
 |---|---|---|
-| Caveman | Respuestas breves: elimina relleno sin ocultar comandos, errores ni advertencias. | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) |
-| RTK | Comprime salida de terminal antes de que llegue al agente. | [rtk-ai/rtk](https://github.com/rtk-ai/rtk) |
-| ccusage | Mide uso local de tokens en Codex y Claude Code. | [ryoppippi/ccusage](https://github.com/ryoppippi/ccusage) |
-| Context Mode | Envía datos grandes a sandbox/MCP y conserva continuidad de sesión. | [mksglu/context-mode](https://github.com/mksglu/context-mode) |
-| Serena | Navegación y edición semántica mediante MCP/LSP. | [oraios/serena](https://github.com/oraios/serena) |
-| Graphify | Crea un mapa consultable de relaciones entre código y documentación. | [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) |
+| Skill `ahorro` | Coordina todo lo demás, activable con `/ahorro` o `$ahorro`. | Ninguno |
+| Skill `caveman` (solo la parte MIT) | Respuestas más breves sin perder código, errores ni avisos de seguridad. Del proyecto [caveman](https://github.com/JuliusBrussee/caveman) — aquí solo se usa el archivo de la skill, no su proxy con licencia BSL-1.1. | Ninguno |
+| ccusage | Mide cuántos tokens gastas. No reduce nada por sí solo. | Ninguno, opcional |
 
-Cuando Graphify se use sobre un proyecto, debe sugerir un repositorio GitHub privado o público según la decisión del usuario para guardar `graphify-out/`, documentación de continuidad y decisiones. Nunca debe subir secretos, cachés, rutas locales, historiales ni datos personales; debe pedir confirmación antes de crear el repositorio o publicar.
+## Nivel código (aparte, proyecto por proyecto)
 
-## Instalación
+Solo tiene sentido en proyectos donde un agente lee o escribe código de verdad. **Nunca actives esto en carpetas con datos de pacientes o información sensible.**
 
-Entrega [INSTALL_PROMPT.md](INSTALL_PROMPT.md) a Codex o Claude Code. El agente debe explicar cada componente, instalarlo bajo el paraguas `$ahorro`/`/ahorro`, comprobar integración y configurar activación automática.
+- **Serena** — en vez de leer archivos enteros, el agente pide directamente "la función que hace X". Instálalo desde [oraios/serena](https://github.com/oraios/serena) y luego, dentro de la carpeta de tu proyecto, ejecuta:
 
-## Activación por defecto
+  ```powershell
+  .\scripts\install.ps1 -CodeProject "C:\ruta\a\tu\proyecto"
+  ```
 
-- Codex: fusionar [templates/AGENTS-ahorro.md](templates/AGENTS-ahorro.md) en `~/.codex/AGENTS.md`.
-- Claude Code: fusionar [templates/CLAUDE-ahorro.md](templates/CLAUDE-ahorro.md) en `~/.claude/CLAUDE.md`.
+  Esto registra Serena solo en ese proyecto, no en todos.
 
-No sustituir esos archivos: pueden contener instrucciones del usuario.
+- **Graphify** — mapa consultable de cómo se relaciona tu código, útil si trabajas el mismo repo con más de un agente (por ejemplo Codex y Claude Code). Herramienta en Python, se instala con `uv tool install` desde [rhanka/graphify](https://github.com/rhanka/graphify). Su análisis de código no usa IA, pero el análisis de documentos y PDFs sí: apúntalo solo a repos de código, nunca a carpetas de documentación clínica.
+
+## Lo que ahorra más y no hay que instalar
+
+1. **Una sesión por tarea.** Una sesión larga arrastra todo su historial en cada mensaje nuevo.
+2. **Elegir el modelo según la tarea.** El modelo y el esfuerzo más altos no hacen falta para cambios rutinarios.
+3. **Mantener `AGENTS.md` al día en cada proyecto.** Evita que el agente se relea el repositorio entero al empezar.
+
+## Lo que deliberadamente no incluye
+
+- **RTK** — comprime la salida de la terminal antes de que el agente la vea. El riesgo es que si comprime mal un error, el agente (y tú) os enteráis tarde. No compensa si no trabajas mucho por terminal.
+- **Context Mode** — pensado para volúmenes de datos grandes que estos proyectos no tienen; es la pieza más compleja de configurar y la que más puede romperse.
+- **El proxy de Caveman** (la parte con licencia BSL-1.1, no libre del todo) — solo se usa su skill.
+
+Si algún día los necesitas, siguen disponibles en sus repositorios oficiales; simplemente no forman parte de este combo.
 
 ## Licencias y privacidad
 
-Combo Ahorro enlaza proyectos de terceros y no redistribuye sus archivos. Revisar licencia y términos de cada repositorio antes de instalar. Este repositorio no contiene credenciales, rutas personales, historiales ni datos privados.
+Combo Ahorro enlaza proyectos de terceros y no redistribuye sus binarios ni su código con licencia restrictiva. La única excepción es el archivo de la skill de Caveman (`skills/caveman/SKILL.md`), que es texto plano bajo licencia MIT del propio proyecto. Revisa la licencia de cada herramienta antes de usarla. Este repositorio no contiene credenciales, rutas personales, historiales ni datos privados.
