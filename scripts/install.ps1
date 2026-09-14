@@ -19,6 +19,18 @@ param(
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 
+# Windows PowerShell 5.1 no siempre lee/escribe UTF-8 por defecto (segun el
+# codepage del sistema), lo que puede corromper acentos y eñes al fusionar
+# texto. Forzamos UTF-8 explicito en cada lectura y escritura de este script.
+$Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+function Get-TextUtf8($path) {
+    if (-not (Test-Path $path)) { return "" }
+    return [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
+}
+function Set-TextUtf8($path, $text) {
+    [System.IO.File]::WriteAllText($path, $text, $Utf8NoBom)
+}
+
 function Write-Status($label, $ok, $detail = "") {
     $mark = if ($ok) { "OK" } else { "--" }
     Write-Host ("  [{0}] {1} {2}" -f $mark, $label, $detail)
@@ -38,28 +50,43 @@ foreach ($skill in @("ahorro", "caveman")) {
     Write-Status "skill '$skill' copiada a $dst" $true
 }
 
-# 2. Fusionar seccion en ~/.claude/CLAUDE.md (sin borrar nada existente)
+# 2. Fusionar seccion en ~/.claude/CLAUDE.md (sin borrar nada mas del archivo)
+#
+# Detecta tambien instalaciones viejas hechas a mano con el INSTALL_PROMPT.md
+# anterior: esas dejaron un encabezado "## Ahorro por defecto" SIN el marcador
+# HTML y sin "(Combo Ahorro)" en el titulo. Si aparece, se sustituye igual que
+# la version marcada, para que no queden las dos secciones duplicadas.
+function Remove-LegacySection([string]$text) {
+    # Encabezado exacto de la version vieja, hasta el siguiente "## " o fin de archivo.
+    $legacyPattern = "(?ms)^##\s*Ahorro por defecto\s*$.*?(?=^##\s|\z)"
+    if ($text -match $legacyPattern) {
+        return @{ Text = [regex]::Replace($text, $legacyPattern, ""); Found = $true }
+    }
+    return @{ Text = $text; Found = $false }
+}
+
 function Merge-Section($targetFile, $templateFile) {
-    $template = Get-Content $templateFile -Raw
+    $template = Get-TextUtf8 $templateFile
     $startMarker = "<!-- combo-ahorro:start -->"
     $endMarker = "<!-- combo-ahorro:end -->"
 
-    if (-not (Test-Path $targetFile)) {
-        New-Item -ItemType File -Force -Path $targetFile | Out-Null
-    }
-    $current = Get-Content $targetFile -Raw
-    if ($null -eq $current) { $current = "" }
+    $current = Get-TextUtf8 $targetFile
+
+    $legacyResult = Remove-LegacySection $current
+    $current = $legacyResult.Text
+    $legacyNote = if ($legacyResult.Found) { ", version vieja sin marcar sustituida" } else { "" }
 
     if ($current -match [regex]::Escape($startMarker)) {
         # Ya existe una seccion de combo-ahorro: reemplazarla por la version nueva
         $pattern = "(?s)$([regex]::Escape($startMarker)).*?$([regex]::Escape($endMarker))"
         $updated = [regex]::Replace($current, $pattern, $template.Trim())
-        Set-Content -Path $targetFile -Value $updated -NoNewline
-        return "actualizada"
+        Set-TextUtf8 $targetFile $updated
+        return "actualizada$legacyNote"
     } else {
         $separator = if ($current.TrimEnd().Length -gt 0) { "`r`n`r`n" } else { "" }
-        Add-Content -Path $targetFile -Value ($separator + $template)
-        return "anadida"
+        $updated = $current.TrimEnd() + $separator + $template
+        Set-TextUtf8 $targetFile $updated
+        return "anadida$legacyNote"
     }
 }
 
