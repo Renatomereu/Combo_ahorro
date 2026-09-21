@@ -1,6 +1,6 @@
 # Combo Ahorro
 
-Reduce cuánto gastan en tokens Claude Code y Codex, sin instalar nada complicado. Pensado para alguien que no programa pero usa estos agentes a diario sobre proyectos reales (Lovable + Supabase + GitHub).
+Ayuda a reducir el uso innecesario de tokens en Claude Code y Codex, con una instalación sencilla. Puede utilizarse en proyectos de distintos sectores; cada usuario debe adaptar las herramientas y los permisos a sus datos y a su forma de trabajar.
 
 ## Instalación (un solo comando)
 
@@ -34,7 +34,7 @@ Vuelve a descargar el repositorio (o `git pull` si lo clonaste) y ejecuta otra v
 
 ## Nivel código (aparte, proyecto por proyecto)
 
-Solo tiene sentido en proyectos donde un agente lee o escribe código de verdad. **Nunca actives esto en carpetas con datos de pacientes o información sensible.**
+Solo tiene sentido en proyectos donde un agente lee o escribe código. Antes de activarlo, revisa qué archivos podrá leer, qué datos guardará localmente y si alguna operación enviará contenido a un proveedor externo. Si el proyecto contiene información confidencial o datos personales, aplica las reglas de tu organización y limita el acceso a lo necesario.
 
 - **Serena** — en vez de leer archivos enteros, el agente pide directamente "la función que hace X". Instálalo desde [oraios/serena](https://github.com/oraios/serena) y luego, dentro de la carpeta de tu proyecto, ejecuta:
 
@@ -44,7 +44,7 @@ Solo tiene sentido en proyectos donde un agente lee o escribe código de verdad.
 
   Esto registra Serena solo en ese proyecto, no en todos.
 
-- **Graphify** — mapa consultable de cómo se relaciona tu código, útil si trabajas el mismo repo con más de un agente (por ejemplo Codex y Claude Code). Herramienta en Python, se instala con `uv tool install` desde [rhanka/graphify](https://github.com/rhanka/graphify). Su análisis de código no usa IA, pero el análisis de documentos y PDFs sí: apúntalo solo a repos de código, nunca a carpetas de documentación clínica.
+- **Graphify** — mapa consultable de cómo se relaciona tu código, útil si trabajas el mismo repo con más de un agente (por ejemplo Codex y Claude Code). Herramienta en Python, se instala con `uv tool install` desde [rhanka/graphify](https://github.com/rhanka/graphify). Su análisis de código no usa IA. Antes de incluir documentos o PDFs, comprueba si el análisis semántico enviará contenido a un modelo externo y usa solo un proveedor aprobado para esos datos.
 
 ## Lo que ahorra más y no hay que instalar
 
@@ -55,7 +55,7 @@ Solo tiene sentido en proyectos donde un agente lee o escribe código de verdad.
 ## Lo que deliberadamente no incluye
 
 - **RTK** — comprime la salida de la terminal antes de que el agente la vea. El riesgo es que si comprime mal un error, el agente (y tú) os enteráis tarde. No compensa si no trabajas mucho por terminal.
-- **Context Mode** — pensado para volúmenes de datos grandes que estos proyectos no tienen; es la pieza más compleja de configurar y la que más puede romperse.
+- **Context Mode** — pensado para volúmenes de datos grandes; requiere una configuración adicional que no compensa en todos los proyectos.
 - **El proxy de Caveman** (la parte con licencia BSL-1.1, no libre del todo) — solo se usa su skill.
 
 Si algún día los necesitas, siguen disponibles en sus repositorios oficiales; simplemente no forman parte de este combo.

@@ -138,7 +138,7 @@ if ($CodeProject) {
     }
     Write-Host ""
     Write-Host "  Graphify no se instala aqui. Es una herramienta Python (uv tool install)." -ForegroundColor Yellow
-    Write-Host "  Instalalo a mano solo si vas a usarlo, y nunca sobre carpetas con datos de pacientes." -ForegroundColor Yellow
+    Write-Host "  Antes de usarlo, revisa que archivos analizara y si enviara contenido a un proveedor externo." -ForegroundColor Yellow
 }
 
 Write-Host ""

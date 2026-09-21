@@ -5,7 +5,7 @@ description: Coordina componentes instalados para reducir salida, contexto y tok
 
 # Ahorro
 
-Combo Ahorro tiene dos niveles. El nivel base se activa siempre. El nivel código solo aplica en proyectos donde el agente lee o escribe código, y nunca sobre carpetas con datos de pacientes u otra información sensible.
+Combo Ahorro tiene dos niveles. El nivel base se activa siempre. El nivel código solo aplica en proyectos donde el agente lee o escribe código. Antes de activarlo, comprobar los permisos, el contenido accesible, los datos guardados localmente y cualquier envío a proveedores externos; adaptar su uso a las reglas del proyecto y de la organización.
 
 ## Nivel base (todo proyecto)
 
@@ -15,7 +15,7 @@ Combo Ahorro tiene dos niveles. El nivel base se activa siempre. El nivel códig
 ## Nivel código (solo proyectos de código, activado por proyecto)
 
 - Serena: navegación y edición por símbolos en vez de leer archivos completos. Requiere `serena setup claude-code` ejecutado una vez en ese proyecto.
-- Graphify: mapa consultable de las relaciones del código, actualizado solo con hooks de git. Nunca apuntarlo a carpetas con documentos, PDFs o datos de pacientes: su paso semántico interpreta contenido con IA.
+- Graphify: mapa consultable de las relaciones del código, actualizado solo con hooks de git. Antes de incluir documentos, PDFs u otros archivos no destinados al análisis de código, comprobar si el paso semántico los enviará a un modelo externo y usar únicamente proveedores aprobados para esos datos.
 
 Antes de dar por activo cualquier componente del nivel código, comprobar que está realmente registrado en ese proyecto (no basta con que el binario exista en el sistema).
 
