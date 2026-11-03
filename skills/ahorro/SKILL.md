@@ -9,7 +9,7 @@ Combo Ahorro tiene dos niveles. El nivel base se activa siempre. El nivel códig
 
 ## Nivel base (todo proyecto)
 
-- Caveman `full`: respuestas breves, sin relleno, sin recortar código, comandos, errores ni advertencias de seguridad.
+- Caveman `lite` (en español `full` se lee peor; usar `full` solo si el usuario lo pide): respuestas breves, sin relleno, sin recortar código, comandos, errores ni advertencias de seguridad.
 - ccusage: medir uso de tokens, no reducirlo. Ejecutar solo al activar `/ahorro`, cuando el usuario pida medición, o al terminar una tarea larga.
 
 ## Nivel código (solo proyectos de código, activado por proyecto)
@@ -27,6 +27,7 @@ Antes de dar por activo cualquier componente del nivel código, comprobar que es
 
 ## Al activarse (`/ahorro`, `$ahorro`)
 
+0. Las reglas se aplican siempre sin activar la skill; activarla solo para comprobar estado o medir consumo (cada activación gasta tokens).
 1. Explicar en una línea qué hace cada componente presente.
 2. Comprobar versiones y disponibilidad real, no solo si el ejecutable existe.
 3. No afirmar integración por tener solo un ejecutable instalado.
