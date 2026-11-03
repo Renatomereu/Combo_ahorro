@@ -20,6 +20,34 @@ powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1
 
 Ninguno de los dos scripts borra instrucciones tuyas que ya tuvieras en `CLAUDE.md` o `AGENTS.md`: solo añaden o quitan un bloque marcado, propio de Combo Ahorro.
 
+## Instalar pidiéndoselo a Claude Code
+
+En vez de descargar el ZIP, puedes pegar este mensaje en Claude Code. Te pedirá permiso antes de cada paso.
+
+```text
+Instala Combo Ahorro desde https://github.com/Renatomereu/Combo_ahorro. Pasos:
+1. Clónalo en una carpeta nueva y vacía.
+2. Lee scripts/install.ps1 y dime en dos líneas qué va a cambiar en mi PC antes de ejecutarlo.
+3. Ejecuta: powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
+4. Enséñame el resumen del instalador.
+5. Recuérdame abrir una sesión nueva para que se aplique.
+```
+
+Si trabajas con datos personales de terceros, usa esta versión (ver [Modo privacidad](#modo-privacidad-si-trabajas-con-datos-personales-de-terceros)):
+
+```text
+Instala Combo Ahorro desde https://github.com/Renatomereu/Combo_ahorro con el modo privacidad. Pasos:
+1. Clónalo en una carpeta nueva y vacía.
+2. Lee scripts/install.ps1 y dime en dos líneas qué va a cambiar en mi PC antes de ejecutarlo.
+3. Ejecuta: powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 -DatosPersonales
+4. Enséñame el resumen y explícame, en sencillo, la lista "Lo que el script no puede hacer por ti" del README.
+5. Recuérdame abrir una sesión nueva para que se aplique.
+```
+
+Para actualizar: "Actualiza Combo Ahorro desde el mismo enlace y vuelve a instalarlo con las mismas opciones."
+
+Leer el script antes de ejecutarlo (paso 2) es buena costumbre con cualquier cosa descargada de internet. El instalador es para Windows.
+
 ## Actualizar una instalación anterior
 
 Vuelve a descargar el repositorio (o `git pull` si lo clonaste) y ejecuta otra vez el mismo comando de instalación de arriba. Es seguro repetirlo cuantas veces quieras: sustituye la sección vieja por la nueva sin duplicarla, y si alguien instaló una versión muy antigua (la del prompt de texto, sin script) el instalador también la detecta y la reemplaza.
