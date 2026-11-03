@@ -19,6 +19,10 @@ Combo Ahorro tiene dos niveles. El nivel base se activa siempre. El nivel códig
 
 Antes de dar por activo cualquier componente del nivel código, comprobar que está realmente registrado en ese proyecto (no basta con que el binario exista en el sistema).
 
+## Modo privacidad (si está instalado con `-DatosPersonales`)
+
+Si `CLAUDE.md` o `AGENTS.md` contienen la sección "Datos personales (Combo Ahorro, modo privacidad)", sus reglas tienen prioridad sobre las de ahorro. En particular, Caveman no se aplica a textos dirigidos a terceros y Graphify no se usa sobre documentos ni carpetas con datos personales.
+
 ## Reglas de trabajo (no requieren instalar nada, ahorran más que las herramientas)
 
 1. Una sesión por tarea. No arrastrar una sesión larga a varias tareas distintas: cada mensaje nuevo carga todo el historial anterior.

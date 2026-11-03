@@ -1,7 +1,8 @@
 <#
 .SYNOPSIS
   Quita el nivel base de Combo Ahorro: borra las skills ahorro/caveman y retira
-  la seccion marcada de CLAUDE.md y AGENTS.md. No toca el resto de esos archivos.
+  las secciones marcadas (ahorro y modo privacidad) de CLAUDE.md y AGENTS.md.
+  No toca el resto de esos archivos.
   No desinstala Serena, Graphify, ccusage ni ningun binario: esos se gestionan aparte.
 #>
 
@@ -34,12 +35,12 @@ foreach ($skill in @("ahorro", "caveman")) {
     }
 }
 
-function Remove-Section($targetFile) {
+function Remove-Section($targetFile, $markerName = "combo-ahorro") {
     if (-not (Test-Path $targetFile)) { return "no existia" }
-    $startMarker = "<!-- combo-ahorro:start -->"
-    $endMarker = "<!-- combo-ahorro:end -->"
+    $startMarker = "<!-- ${markerName}:start -->"
+    $endMarker = "<!-- ${markerName}:end -->"
     $current = Get-TextUtf8 $targetFile
-    if ($current -notmatch [regex]::Escape($startMarker)) { return "sin seccion combo-ahorro" }
+    if ($current -notmatch [regex]::Escape($startMarker)) { return "sin seccion $markerName" }
 
     $pattern = "(?s)\r?\n?\r?\n?$([regex]::Escape($startMarker)).*?$([regex]::Escape($endMarker))\r?\n?"
     $updated = [regex]::Replace($current, $pattern, "")
@@ -49,9 +50,11 @@ function Remove-Section($targetFile) {
 
 $claudeMd = Join-Path $env:USERPROFILE ".claude\CLAUDE.md"
 Write-Status "CLAUDE.md" $true "($(Remove-Section $claudeMd))"
+Write-Status "CLAUDE.md privacidad" $true "($(Remove-Section $claudeMd 'combo-ahorro-privacidad'))"
 
 $agentsMd = Join-Path $env:USERPROFILE ".codex\AGENTS.md"
 Write-Status "AGENTS.md" $true "($(Remove-Section $agentsMd))"
+Write-Status "AGENTS.md privacidad" $true "($(Remove-Section $agentsMd 'combo-ahorro-privacidad'))"
 
 Write-Host ""
 Write-Host "Nivel base desinstalado. Serena, Graphify, ccusage, rtk no se han tocado." -ForegroundColor Green

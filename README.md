@@ -46,6 +46,34 @@ Solo tiene sentido en proyectos donde un agente lee o escribe código. Antes de 
 
 - **Graphify** — mapa consultable de cómo se relaciona tu código, útil si trabajas el mismo repo con más de un agente (por ejemplo Codex y Claude Code). Herramienta en Python, se instala con `uv tool install` desde [rhanka/graphify](https://github.com/rhanka/graphify). Su análisis de código no usa IA. Antes de incluir documentos o PDFs, comprueba si el análisis semántico enviará contenido a un modelo externo y usa solo un proveedor aprobado para esos datos.
 
+## Modo privacidad (si trabajas con datos personales de terceros)
+
+Si en tus proyectos hay datos personales de clientes, usuarios o empleados, instala con:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 -DatosPersonales
+```
+
+Añade una segunda sección marcada a `CLAUDE.md` (y a `AGENTS.md` de Codex) con reglas que tienen prioridad sobre las de ahorro:
+
+- Recordar que todo lo que se abre o pega en la sesión llega al proveedor del modelo, y proponer anonimizar.
+- Leer solo los archivos necesarios; no abrir carpetas de datos de terceros sin necesidad.
+- No acortar con Caveman textos dirigidos a terceros (mensajes, informes, consentimientos, textos legales).
+- No escribir datos personales en `AGENTS.md`, `CLAUDE.md`, memorias, commits ni archivos de repositorio.
+- Graphify solo sobre código y sin publicar `graphify-out/`; Serena solo en carpetas de código.
+
+Si lo combinas con `-CodeProject`, también añade `.serena/` y `graphify-out/` al `.gitignore` de ese proyecto.
+
+Lo que el script **no puede hacer por ti** y debes revisar:
+
+1. **Plan y contrato del proveedor de IA.** Comprueba que tu plan incluye un contrato de tratamiento de datos que cubra este uso, según la normativa que te aplique (por ejemplo, el RGPD en la UE). Los planes personales no siempre lo incluyen.
+2. **Entrenamiento.** Revisa en la configuración de privacidad de tu cuenta si tus conversaciones se usan para mejorar los modelos.
+3. **Historial local.** Claude Code guarda las conversaciones en `~/.claude/projects`. Reduce cuánto tiempo se guardan con `cleanupPeriodDays` en `~/.claude/settings.json`, y protege ese equipo como protegerías los datos originales.
+4. **ccusage** lee ese historial en local. Si lo usas, instala una versión concreta en vez de ejecutar siempre la última con `npx`.
+5. **Categorías especiales** (salud, datos de menores, etc.): aplica las reglas de tu organización y, ante la duda, anonimiza antes de usar IA.
+
+Esta guía no es asesoramiento legal.
+
 ## Lo que ahorra más y no hay que instalar
 
 1. **Una sesión por tarea.** Una sesión larga arrastra todo su historial en cada mensaje nuevo.

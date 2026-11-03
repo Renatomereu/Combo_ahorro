@@ -10,10 +10,16 @@
 .EXAMPLE
   .\scripts\install.ps1 -CodeProject "C:\ruta\a\mi-proyecto"
   Además del nivel base, registra Serena como servidor MCP en ese proyecto.
+
+.EXAMPLE
+  .\scripts\install.ps1 -DatosPersonales
+  Añade el modo privacidad para quien trabaja con datos personales de terceros.
+  Con -CodeProject, además añade .serena/ y graphify-out/ al .gitignore del proyecto.
 #>
 
 param(
-    [string]$CodeProject
+    [string]$CodeProject,
+    [switch]$DatosPersonales
 )
 
 $ErrorActionPreference = "Stop"
@@ -65,16 +71,19 @@ function Remove-LegacySection([string]$text) {
     return @{ Text = $text; Found = $false }
 }
 
-function Merge-Section($targetFile, $templateFile) {
+function Merge-Section($targetFile, $templateFile, $markerName = "combo-ahorro") {
     $template = Get-TextUtf8 $templateFile
-    $startMarker = "<!-- combo-ahorro:start -->"
-    $endMarker = "<!-- combo-ahorro:end -->"
+    $startMarker = "<!-- ${markerName}:start -->"
+    $endMarker = "<!-- ${markerName}:end -->"
 
     $current = Get-TextUtf8 $targetFile
 
-    $legacyResult = Remove-LegacySection $current
-    $current = $legacyResult.Text
-    $legacyNote = if ($legacyResult.Found) { ", version vieja sin marcar sustituida" } else { "" }
+    $legacyNote = ""
+    if ($markerName -eq "combo-ahorro") {
+        $legacyResult = Remove-LegacySection $current
+        $current = $legacyResult.Text
+        if ($legacyResult.Found) { $legacyNote = ", version vieja sin marcar sustituida" }
+    }
 
     if ($current -match [regex]::Escape($startMarker)) {
         # Ya existe una seccion de combo-ahorro: reemplazarla por la version nueva
@@ -102,6 +111,18 @@ if (Test-Path (Join-Path $env:USERPROFILE ".codex")) {
     Write-Status "seccion en $agentsMd" $true "($resultAgents)"
 } else {
     Write-Status "Codex no detectado (~/.codex no existe), se omite AGENTS.md" $false
+}
+
+# 2b. Modo privacidad, opcional, para quien trabaja con datos personales de terceros
+if ($DatosPersonales) {
+    $templatePriv = Join-Path $repoRoot "templates\CLAUDE-privacidad.md"
+    $resultPriv = Merge-Section $claudeMd $templatePriv "combo-ahorro-privacidad"
+    Write-Status "modo privacidad en $claudeMd" $true "($resultPriv)"
+    if (Test-Path (Join-Path $env:USERPROFILE ".codex")) {
+        $templatePrivAgents = Join-Path $repoRoot "templates\AGENTS-privacidad.md"
+        $resultPrivAgents = Merge-Section $agentsMd $templatePrivAgents "combo-ahorro-privacidad"
+        Write-Status "modo privacidad en $agentsMd" $true "($resultPrivAgents)"
+    }
 }
 
 # 3. Comprobar componentes reales, sin instalar nada mas por defecto
@@ -136,16 +157,37 @@ if ($CodeProject) {
             Pop-Location
         }
     }
+    if ($DatosPersonales -and (Test-Path $CodeProject)) {
+        $gitignore = Join-Path $CodeProject ".gitignore"
+        $ignoreText = Get-TextUtf8 $gitignore
+        $added = @()
+        foreach ($entry in @(".serena/", "graphify-out/")) {
+            if ($ignoreText -notmatch "(?m)^$([regex]::Escape($entry))\s*$") { $added += $entry }
+        }
+        if ($added.Count -gt 0) {
+            $separator = if ($ignoreText.Length -gt 0 -and -not $ignoreText.EndsWith("`n")) { "`r`n" } else { "" }
+            Set-TextUtf8 $gitignore ($ignoreText + $separator + ($added -join "`r`n") + "`r`n")
+        }
+        Write-Status ".gitignore de $CodeProject" $true "($(if ($added.Count) { 'anadido: ' + ($added -join ', ') } else { 'ya estaba' }))"
+    }
     Write-Host ""
     Write-Host "  Graphify no se instala aqui. Es una herramienta Python (uv tool install)." -ForegroundColor Yellow
     Write-Host "  Antes de usarlo, revisa que archivos analizara y si enviara contenido a un proveedor externo." -ForegroundColor Yellow
+    if ($DatosPersonales) {
+        Write-Host "  Modo privacidad: no uses Graphify en carpetas con datos personales ni sobre documentos." -ForegroundColor Yellow
+    }
 }
 
 Write-Host ""
 Write-Host "=== Resumen ===" -ForegroundColor Cyan
 $extra = if (Test-Path (Join-Path $env:USERPROFILE ".codex")) { " y AGENTS.md" } else { "" }
 Write-Host "  Instalado:  skills ahorro + caveman, seccion en CLAUDE.md$extra"
-Write-Host "  Operativo:  se activa con /ahorro en la proxima sesion de Claude Code"
+if ($DatosPersonales) {
+    Write-Host "  Privacidad: modo datos personales activo (reglas con prioridad sobre las de ahorro)"
+    Write-Host "  Revisa tu: que tu plan y contrato con el proveedor de IA cubren datos personales," -ForegroundColor Yellow
+    Write-Host "             si las conversaciones se usan para entrenar y cuanto tiempo se guardan en local." -ForegroundColor Yellow
+}
+Write-Host "  Operativo:  las reglas se aplican en la proxima sesion; /ahorro solo para estado o medicion"
 Write-Host "  Pendiente:  Serena y Graphify (nivel codigo) se activan por proyecto, no por defecto"
 Write-Host ""
 Write-Host "Abre una sesion nueva de Claude Code para que el cambio en CLAUDE.md tenga efecto." -ForegroundColor Green
